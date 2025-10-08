@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reminders App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <h2>My Lists</h2>
+      <button id="add-list">+ New List</button>
+      <ul id="list-container"></ul>
+    </aside>
+
+    <main class="main">
+      <header class="header">
+        <h1 id="list-title">Today</h1>
+        <div class="tabs">
+          <button class="tab active" data-tab="today">Today</button>
+          <button class="tab" data-tab="scheduled">Scheduled</button>
+          <button class="tab" data-tab="flagged">Flagged</button>
+          <button class="tab" data-tab="completed">Completed</button>
+          <button class="tab" data-tab="all">All</button>
+        </div>
+      </header>
+
+      <section class="tasks">
+        <ul id="task-list"></ul>
+        <div class="add-task">
+          <input type="text" id="task-input" placeholder="New reminder..." />
+          <button id="add-task">+</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
