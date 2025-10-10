@@ -1,66 +1,107 @@
-const taskInput = document.getElementById("task-input");
-const addTaskBtn = document.getElementById("add-task");
-const taskList = document.getElementById("task-list");
-const tabs = document.querySelectorAll(".tab");
+var taskInput = document.getElementById("task-input");
+var taskDate = document.getElementById("task-date");
+var addBtn = document.getElementById("add-item");
+var taskList = document.getElementById("task-list");
+var countSpan = document.getElementById("count");
+var filterButtons = document.querySelectorAll(".filter button");
+var clearBtn = document.getElementById("clearcompleted");
 
-let tasks = [];
+var tasks = [];
 
-function renderTasks(filter = "today") {
-  taskList.innerHTML = "";
-
-  let filteredTasks = tasks;
-  if (filter === "completed") filteredTasks = tasks.filter(t => t.completed);
-  else if (filter === "flagged") filteredTasks = tasks.filter(t => t.flagged);
-  else if (filter === "scheduled") filteredTasks = tasks.filter(t => t.scheduled);
-  else if (filter === "today") filteredTasks = tasks.filter(t => !t.completed);
-
-  if (filteredTasks.length === 0) {
-    taskList.innerHTML = "<p style='text-align:center;color:#777'>No Reminders</p>";
-    return;
-  }
-
-  filteredTasks.forEach((task, index) => {
-    const li = document.createElement("li");
-    li.className = `task ${task.completed ? "completed" : ""}`;
-    li.innerHTML = `
-      <span>${task.text}</span>
-      <div>
-        <button onclick="toggleComplete(${index})">✓</button>
-        <button onclick="deleteTask(${index})">🗑️</button>
-      </div>
-    `;
-    taskList.appendChild(li);
-  });
+function updateCount() {
+    var remainingTasks = tasks.filter(function(task) {
+        return task.completed === false;
+    });
+    countSpan.textContent = "Tasks: " + remainingTasks.length;
 }
 
-function addTask() {
-  const text = taskInput.value.trim();
-  if (!text) return;
-
-  tasks.push({ text, completed: false, flagged: false, scheduled: false });
-  taskInput.value = "";
-  renderTasks();
+function getToday() {
+    var todayDate = new Date();
+    var year = todayDate.getFullYear();
+    var month = String(todayDate.getMonth() + 1);
+    var day = String(todayDate.getDate())
+    return year + "-" + month + "-" + day;
 }
 
-function toggleComplete(index) {
-  tasks[index].completed = !tasks[index].completed;
-  renderTasks();
+function renderTasks(filter = "all") {
+    taskList.innerHTML = "";
+    var today = getToday();
+
+    for (let i = 0; i < tasks.length; i++) {
+        let task = tasks[i];
+
+        if (filter === "today" && task.date !== today) continue;
+        if (filter === "schedule" && (!task.date || task.date <= today)) continue;
+        if (filter === "complete" && task.completed === false) continue;
+        if (filter === "flag" && task.flag === false) continue;
+
+        let li = document.createElement("li");
+
+        let checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = task.completed;
+        checkbox.addEventListener("change", function() {
+            task.completed = this.checked;
+            renderTasks(filter);
+        });
+        li.appendChild(checkbox);
+
+        let taskText = document.createTextNode(" " + task.name + " (" + (task.date || "No Date" ) + ") ");
+        li.appendChild(taskText);
+
+        let flagBtn = document.createElement("button");
+        flagBtn.textContent = task.flag ? "🚩" : "🏳️";
+        flagBtn.title = "MARK AS IMPORTANT";
+        flagBtn.addEventListener("click", function() {
+            task.flag = !task.flag;
+            renderTasks(filter);
+        });
+        li.appendChild(flagBtn);
+
+        taskList.appendChild(li);
+    }
+
+    updateCount();
 }
+addBtn.addEventListener("click", function() {
+    var name = taskInput.value.trim();
+    var date = taskDate.value;
 
-function deleteTask(index) {
-  tasks.splice(index, 1);
-  renderTasks();
-}
+    if (name === "") return;
 
-addTaskBtn.addEventListener("click", addTask);
-taskInput.addEventListener("keypress", e => e.key === "Enter" && addTask());
+    tasks.push({
+        name: name,
+        date: date,
+        completed: false,
+        flag: false
+    });
 
-tabs.forEach(tab => {
-  tab.addEventListener("click", () => {
-    tabs.forEach(t => t.classList.remove("active"));
-    tab.classList.add("active");
-    renderTasks(tab.dataset.tab);
-  });
+    taskInput.value = "";
+    taskDate.value = "";
+
+    renderTasks();
 });
 
-renderTasks();
+for (let i = 0; i < filterButtons.length; i++) {
+    filterButtons[i].addEventListener("click", function() {
+        var filter = this.getAttribute("data-filter");
+        renderTasks(filter);
+    });
+}
+clearBtn.addEventListener("click", function() {
+    tasks = tasks.filter(function(task) {
+        return task.completed === false;
+    });
+    renderTasks();
+});
+
+var filterButtons = document.querySelectorAll(".filter button");
+
+for (var i = 0; i < filterButtons.length; i++) {
+    filterButtons[i].addEventListener("click", function() {
+        for (var j = 0; j < filterButtons.length; j++) {
+            filterButtons[j].classList.remove("active");
+        }
+        this.classList.add("active");
+    });
+}
