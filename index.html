@@ -1,42 +1,24 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      
-    <title>To-Do List</title>
-    <link rel="stylesheet" href="style.css">
-    
+    <title>Simple To-Do App</title>
 </head>
 <body>
+    <h2>To-Do List</h2>
+    <input type="text" id="task-input" placeholder="Enter task">
+    <input type="date" id="task-date">
+    <button id="add-item">Add</button>
 
-    <div class="container">
-        <header>
-            <h2>Add Task</h2>
-            <input type="text" id="task-input" placeholder="Enter your task here">
-            <input type="date" id="task-date">
-            <button id="add-item">Add</button>
-  </header>
+    <br><br>
+    <button id="show-all">All Tasks</button>
+    <button id="show-today">Today</button>
+    <button id="show-completed">Completed</button>
+    <button id="show-flagged">Flagged</button>
 
-        <div class="filter">
-            <button name="filter" data-filter="all">All</button>
-            <button name="filter" data-filter="today">Today</button>
-            <button name="filter" data-filter="schedule">Schedule</button>
-            <button name="filter" data-filter="flag">flag</button>
-            <button name="filter" data-filter="complete">Complete</button>
-             
-             </div>
+    <ul id="task-list"></ul>
+    <p>Remaining Tasks: <span id="count">0</span></p>
+    <button id="clearcompleted">Clear Completed</button>
 
-        <main class="list-area">
-            <ul class="task-list" id="task-list"></ul>
-        </main>
-
-        <footer class="app-footer">
-            <span id="count"></span>
-            <button id="clearcompleted">clear completed</button>
-        </footer>
-    </div> 
     <script src="script.js"></script>
 </body>
-</html>
+</html> 
