@@ -10,12 +10,12 @@ app.use(express.json());
 
 const db = mysql.createConnection({
     host: "localhost",
-    user: "root",
+    user: "root", 
     password: "@ditya@1234",
     database: "aditydb",
-    port: 3306  
-});
-
+    port: 3306    
+}); 
+ 
 db.connect(err => {
     if (err) {
         console.log(" Can't connect to the database:", err);
@@ -66,7 +66,7 @@ app.put("/update/:id", (req, res) => {
         console.log(" Task updated:", result);
     });
 });
-
+ 
 app.delete("/clear", (req, res) => {
     db.query("DELETE FROM tasks WHERE completed = 1", (err, result) => {
         if (err) {
@@ -78,4 +78,4 @@ app.delete("/clear", (req, res) => {
     });
 });
 
-app.listen(3000, () => console.log(" Server running on port 3000"));
+app.listen(3000,'0.0.0.0', () => console.log(" Server running on port 3000"));
