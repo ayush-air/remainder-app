@@ -23,7 +23,7 @@ db.connect(err => {
     console.log(" Connected to MySQL database");
 });
 
-// Add new task
+
 app.post("/add", (req, res) => {
     const name = req.body.name;
     const date = req.body.date || null;
@@ -37,11 +37,10 @@ app.post("/add", (req, res) => {
             return res.send("Task not added");
         }
         res.send("Task added successfully");
-        console.log("✅ Task added:", result);
+        console.log(" Task added:", result);
     });
 });
 
-// Get all tasks — fix timezone by returning plain YYYY-MM-DD
 app.get("/tasks", (req, res) => {
     const sql = `
         SELECT 
@@ -61,7 +60,6 @@ app.get("/tasks", (req, res) => {
     });
 });
 
-// Update task completed or flagged
 app.put("/update/:id", (req, res) => {
     const taskId = req.params.id;
     const taskCompleted = req.body.completed;
@@ -78,7 +76,6 @@ app.put("/update/:id", (req, res) => {
     });
 });
 
-// Clear completed tasks
 app.delete("/clear", (req, res) => {
     db.query("DELETE FROM tasks WHERE completed = 1", (err, result) => {
         if (err) {
@@ -91,4 +88,5 @@ app.delete("/clear", (req, res) => {
 });
 
 app.listen(3000,'0.0.0.0', () => console.log(" Server running on port 3000"));
+
 
