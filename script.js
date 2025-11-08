@@ -12,8 +12,8 @@ const showTodayBtn = document.getElementById("show-today");
 const showCompletedBtn = document.getElementById("show-completed");
 const showFlaggedBtn = document.getElementById("show-flagged");
 
-var tasks = [];
-var currentFilter = "all";
+let tasks = [];
+let currentFilter = "all";
 
 function getTodayDate() {
   const today = new Date();
@@ -23,34 +23,33 @@ function getTodayDate() {
   return `${year}-${month}-${day}`;
 }
 
+
 async function loadTasks() {
-  var response = await fetch(apiUrl + "/tasks");
-  var data = await response.json();
-  tasks = data;
+  const response = await fetch(`${apiUrl}/tasks`);
+  tasks = await response.json();
   displayTasks();
 }
 
 function displayTasks() {
   taskList.innerHTML = "";
-  var remaining = 0;
-  var todayDate = getTodayDate();
+  let remaining = 0;
+  const todayDate = getTodayDate();
 
-  for (let i = 0; i < tasks.length; i++) {
-    let task = tasks[i];
-
+  tasks.forEach(task => {
     const taskDateStr = task.date ? task.date.split("T")[0] : "";
 
-    if (currentFilter === "today" && taskDateStr !== todayDate) continue;
-    if (currentFilter === "flagged" && task.flag !== 1) continue;
-    if (currentFilter === "completed" && task.completed !== 1) continue;
+    if (currentFilter === "today" && taskDateStr !== todayDate) return;
+    if (currentFilter === "flagged" && task.flag !== 1) return;
+    if (currentFilter === "completed" && task.completed !== 1) return;
 
     const li = document.createElement("li");
+    if (task.completed === 1) li.classList.add("completed");
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = task.completed === 1;
     checkbox.addEventListener("change", async function () {
-      await fetch(apiUrl + "/update/" + task.id, {
+      await fetch(`${apiUrl}/update/${task.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ completed: this.checked ? 1 : 0, flag: task.flag }),
@@ -62,37 +61,34 @@ function displayTasks() {
 
     const flagBtn = document.createElement("button");
     flagBtn.textContent = task.flag ? "🚩" : "🏳️";
+    flagBtn.classList.add("flag-btn");
     flagBtn.addEventListener("click", async function () {
-      await fetch(apiUrl + "/update/" + task.id, {
+      await fetch(`${apiUrl}/update/${task.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ completed: task.completed, flag: task.flag === 1 ? 0 : 1 }),
       });
       loadTasks();
-    }); 
+    });
 
     li.appendChild(checkbox);
     li.appendChild(text);
     li.appendChild(flagBtn);
-    taskList.append(li);
+    taskList.appendChild(li);
 
     if (task.completed !== 1) remaining++;
-  }
+  });
 
   countEl.textContent = remaining;
-  
 }
+
 
 addBtn.addEventListener("click", async function () {
   const name = taskInput.value.trim();
-  const date = taskDate.value;
+  const date = taskDate.value || null; 
+  if (!name) return alert("Please enter your task");
 
-  if (!name) {
-    alert("please enter your task");
-    return;
-  }
-
-  await fetch(apiUrl + "/add", {
+  await fetch(`${apiUrl}/add`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, date }),
@@ -104,29 +100,15 @@ addBtn.addEventListener("click", async function () {
 });
 
 clearBtn.addEventListener("click", async function () {
-  await fetch(apiUrl + "/clear", { method: "DELETE" });
+  await fetch(`${apiUrl}/clear`, { method: "DELETE" });
   loadTasks();
 });
 
-showAllBtn.addEventListener("click", function () {
-  currentFilter = "all";
-  displayTasks();
-});
+showAllBtn.addEventListener("click", () => { currentFilter = "all"; displayTasks(); });
+showTodayBtn.addEventListener("click", () => { currentFilter = "today"; displayTasks(); });
+showCompletedBtn.addEventListener("click", () => { currentFilter = "completed"; displayTasks(); });
+showFlaggedBtn.addEventListener("click", () => { currentFilter = "flagged"; displayTasks(); });
 
-showTodayBtn.addEventListener("click", function () {
-  currentFilter = "today";
-  displayTasks();
-});
+loadTasks();
 
-showCompletedBtn.addEventListener("click", function () {
-  currentFilter = "completed";
-  displayTasks();
-});
-
-showFlaggedBtn.addEventListener("click", function () {
-  currentFilter = "flagged";
-  displayTasks();
-});
-
-loadTasks(); 
  
