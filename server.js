@@ -7,7 +7,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
 const db = mysql.createConnection({
     host: "localhost",
     user: "root", 
@@ -15,7 +14,7 @@ const db = mysql.createConnection({
     database: "aditydb",
     port: 3306    
 }); 
- 
+
 db.connect(err => {
     if (err) {
         console.log(" Can't connect to the database:", err);
@@ -24,6 +23,7 @@ db.connect(err => {
     console.log(" Connected to MySQL database");
 });
 
+// Add new task
 app.post("/add", (req, res) => {
     const name = req.body.name;
     const date = req.body.date || null;
@@ -41,8 +41,18 @@ app.post("/add", (req, res) => {
     });
 });
 
+// Get all tasks — fix timezone by returning plain YYYY-MM-DD
 app.get("/tasks", (req, res) => {
-    db.query("SELECT * FROM tasks", (err, result) => {
+    const sql = `
+        SELECT 
+            id, 
+            name, 
+            DATE_FORMAT(date, '%Y-%m-%d') AS date, 
+            completed, 
+            flag 
+        FROM tasks
+    `;
+    db.query(sql, (err, result) => {
         if (err) {
             console.log(" Error fetching tasks:", err);
             return res.send("Error fetching tasks");
@@ -51,6 +61,7 @@ app.get("/tasks", (req, res) => {
     });
 });
 
+// Update task completed or flagged
 app.put("/update/:id", (req, res) => {
     const taskId = req.params.id;
     const taskCompleted = req.body.completed;
@@ -66,7 +77,8 @@ app.put("/update/:id", (req, res) => {
         console.log(" Task updated:", result);
     });
 });
- 
+
+// Clear completed tasks
 app.delete("/clear", (req, res) => {
     db.query("DELETE FROM tasks WHERE completed = 1", (err, result) => {
         if (err) {
@@ -79,3 +91,4 @@ app.delete("/clear", (req, res) => {
 });
 
 app.listen(3000,'0.0.0.0', () => console.log(" Server running on port 3000"));
+
